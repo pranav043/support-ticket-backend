@@ -5,6 +5,9 @@ import { Agent } from "../models/agentSchema.js";
 import { getNextAgentId } from "../utils/roundRobin.js";
 import { validateCreateTicket } from "../utils/validator.js";
 
+import { TICKET_STATUS } from "../utils/constant.js";
+import { TICKET_SEVERITY } from "../utils/constant.js";
+
 export const getAllTickets = async (req, res, next) => {
   try {
     const { sortBy, sortOrder, status, severity, assignedTo, type } = req.query;
@@ -84,6 +87,25 @@ export const createTicket = async (req, res, next) => {
       const validationErrors = Object.values(error.errors).map((err) => err.message);
       return next(new ErrorHandler(validationErrors.join(", "), 400));
     }
+    return next(error);
+  }
+};
+
+export const getAllFilterValues = async (req, res, next) => {
+  try {
+    const [typeArr, activeAgents] = await Promise.all([
+      await Ticket.distinct("type"),
+      await Agent.find({ active: true }, "_id name"),
+    ]);
+
+    const data = {
+      severity: TICKET_SEVERITY,
+      status: TICKET_STATUS,
+      type: typeArr,
+      assignedTo: activeAgents,
+    };
+    res.status(201).json(data);
+  } catch (error) {
     return next(error);
   }
 };
