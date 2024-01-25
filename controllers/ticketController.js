@@ -10,7 +10,16 @@ import { TICKET_SEVERITY } from "../utils/constant.js";
 
 export const getAllTickets = async (req, res, next) => {
   try {
-    const { sortBy, sortOrder, status, severity, assignedTo, type } = req.query;
+    const {
+      sortBy,
+      sortOrder,
+      status,
+      severity,
+      assignedTo,
+      type,
+      page = 1,
+      itemsPerPage = 10,
+    } = req.query;
 
     const filters = {};
     const sort = {};
@@ -32,11 +41,14 @@ export const getAllTickets = async (req, res, next) => {
       sort[sortBy] = sortOrder === "desc" ? -1 : 1;
     }
 
-    const tickets = await Ticket.find(filters).sort(sort);
+    const skip = (page - 1) * itemsPerPage;
+
+    const tickets = await Ticket.find(filters).sort(sort).skip(skip).limit(parseInt(itemsPerPage));
     const agentIds = tickets.map((ticket) => ticket.assignedTo);
     const agents = await Agent.find({ _id: { $in: agentIds } });
+    const totalCount = await Ticket.countDocuments(filters);
 
-    // Replace assignedTo ID with agent name in the result set
+    // Replacing ID with name
     const ticketsWithAgentNames = tickets.map((ticket) => {
       const agent = agents.find((agent) => agent._id.equals(ticket.assignedTo));
       return {
@@ -44,7 +56,7 @@ export const getAllTickets = async (req, res, next) => {
         assignedTo: agent ? agent.name : null,
       };
     });
-    res.status(201).json(ticketsWithAgentNames);
+    res.status(201).json({ tickets: ticketsWithAgentNames, count: totalCount });
   } catch (error) {
     if (error.name === "ValidationError") {
       const validationErrors = Object.values(error.errors).map((err) => err.message);
