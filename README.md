@@ -1,12 +1,19 @@
 
 # Support Ticket Management System
 
-Project made for the Shvasa Assignment. Client Side Repo Link: https://github.com/pranav043/support-ticket-frontend
+Support TIX, a cutting-edge support ticket management system developed with the MERN stack. This seamless platform automates ticket creation and assignment through a round-robin algorithm, ensuring fair distribution among agents. With its sleek and straightforward UI, Support TIX simplifies the support process, offering a clean interface for efficient ticket resolution.
 
+Client Side Repo Link: https://github.com/pranav043/support-ticket-frontend
 
 ## Deployment
 
 Project deployed live at: https://support-tix-api.vercel.app/
+
+## Screenshots
+
+HomeScreen Screenshot
+
+![App Screenshot](https://i.ibb.co/VWtKtb6/support-tix.png)
 
 
 ## Run Locally
